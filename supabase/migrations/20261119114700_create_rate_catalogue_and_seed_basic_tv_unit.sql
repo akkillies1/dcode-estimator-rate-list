@@ -109,3 +109,31 @@ select
   'Length of ledge'
 from category
 on conflict (category_id, name) do nothing;
+
+-- Item 03: Sofa
+-- Pricing is per piece; project-specific dimensions and quantities are not stored.
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Sofas', 'sofas')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id,
+  name,
+  description,
+  specifications,
+  rate,
+  rate_unit,
+  pricing_basis
+)
+select
+  category.id,
+  'Sofa',
+  'Supply of sofa as per approved design, size, material, finish and upholstery selection.',
+  '{}'::jsonb,
+  62500.00,
+  'piece',
+  'Per piece'
+from category
+on conflict (category_id, name) do nothing;
