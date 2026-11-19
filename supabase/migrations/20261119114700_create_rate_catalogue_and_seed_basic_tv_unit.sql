@@ -137,3 +137,35 @@ select
   'Per piece'
 from category
 on conflict (category_id, name) do nothing;
+
+-- Item 04: Centre Table
+-- Standard design; dimensions and material options are part of the catalogue specification.
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Centre Tables', 'centre-tables')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id,
+  name,
+  description,
+  specifications,
+  rate,
+  rate_unit,
+  pricing_basis
+)
+select
+  category.id,
+  'Centre Table',
+  'Supply of standard design Centre Table measuring 45 cm x 45 cm, made using Plywood or HDHMR.',
+  '{
+    "dimensions": "45 cm x 45 cm",
+    "material": "Plywood or HDHMR",
+    "design": "Standard design"
+  }'::jsonb,
+  18500.00,
+  'piece',
+  'Per piece'
+from category
+on conflict (category_id, name) do nothing;
