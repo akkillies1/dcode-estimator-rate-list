@@ -82,12 +82,13 @@ select
 from category
 on conflict (category_id, name) do nothing;
 
--- Item 02: TV Unit Ledge
--- Priced by running length; no project-specific dimensions or quantities are stored.
+-- Item 02: Generic Ledge
+-- Reusable ledge catalogue entry; no room-specific or project-specific dimensions are stored.
 with category as (
-  select id
-  from public.rate_catalogue_categories
-  where slug = 'tv-units'
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Ledges', 'ledges')
+  on conflict (name) do update set name = excluded.name
+  returning id
 )
 insert into public.rate_catalogue_items (
   category_id,
@@ -100,8 +101,8 @@ insert into public.rate_catalogue_items (
 )
 select
   category.id,
-  'TV Unit Ledge',
-  'Fabrication, supply and installation of TV Unit Ledge using 4 cm thick Marine Plywood, complete as per approved design.',
+  'Ledge',
+  'Fabrication, supply and installation of 4 cm thick Marine Plywood Ledge, complete as per approved design.',
   '{
     "material": "Marine Plywood only",
     "thickness": "4 cm"
