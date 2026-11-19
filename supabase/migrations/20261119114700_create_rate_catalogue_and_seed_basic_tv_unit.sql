@@ -16,7 +16,9 @@ create table if not exists public.rate_catalogue_items (
   description text not null,
   specifications jsonb not null default '{}'::jsonb
     check (jsonb_typeof(specifications) = 'object'),
-  rate numeric(12, 2) not null check (rate >= 0),
+  rate numeric(12, 2) null check (rate is null or rate >= 0),
+  pricing_type text not null default 'fixed'
+    check (pricing_type in ('fixed', 'market_rate')),
   rate_unit text not null,
   pricing_basis text not null,
   is_active boolean not null default true,
@@ -167,5 +169,99 @@ select
   18500.00,
   'piece',
   'Per piece'
+from category
+on conflict (category_id, name) do nothing;
+
+
+-- Items 05–07: Living area paneling and ceiling works
+-- Market-rate items have a null numeric rate and are identified by pricing_type.
+
+-- Item 05: Fluted Paneling
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Wall Paneling', 'wall-paneling')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id,
+  name,
+  description,
+  specifications,
+  rate,
+  pricing_type,
+  rate_unit,
+  pricing_basis
+)
+select
+  category.id,
+  'Fluted Paneling',
+  'Supply and installation of fluted paneling. Rate is based on current market pricing and varies according to size, material, make and pattern.',
+  '{
+    "rate_determination": "Current market rate",
+    "rate_factors": ["Size", "Material", "Make", "Pattern"]
+  }'::jsonb,
+  null,
+  'market_rate',
+  'As applicable',
+  'To be determined based on measured size and selected panel specification'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 06: Wooden Ceiling
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Ceiling Works', 'ceiling-works')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id,
+  name,
+  description,
+  specifications,
+  rate,
+  pricing_type,
+  rate_unit,
+  pricing_basis
+)
+select
+  category.id,
+  'Wooden Ceiling',
+  'Supply and installation of wooden ceiling. Rate subject to material, design and site conditions.',
+  '{}'::jsonb,
+  1050.00,
+  'fixed',
+  'sq.ft.',
+  'Measured ceiling area; rate subject to material, design and site conditions'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 07: Window Panelling
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Window Panelling', 'window-panelling')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id,
+  name,
+  description,
+  specifications,
+  rate,
+  pricing_type,
+  rate_unit,
+  pricing_basis
+)
+select
+  category.id,
+  'Window Panelling',
+  'Supply and installation of window panelling at an approximate rate of ₹650 per sq.ft. Rate subject to material, design and site conditions.',
+  '{}'::jsonb,
+  650.00,
+  'fixed',
+  'sq.ft.',
+  'Measured area; approximate rate subject to material, design and site conditions'
 from category
 on conflict (category_id, name) do nothing;
