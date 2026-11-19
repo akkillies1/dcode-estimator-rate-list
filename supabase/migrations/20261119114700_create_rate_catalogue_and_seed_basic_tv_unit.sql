@@ -667,3 +667,71 @@ select
   'Per piece; selectable headboard option determines applicable rate and generated description'
 from category
 on conflict (category_id, name) do nothing;
+
+-- Item 23: Study Table
+-- Reference dimensions are quotation defaults and remain editable.
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Bedroom Units', 'bedroom-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Study Table',
+  'Fabrication, supply and installation of Study Table using 19 mm Marine Plywood (710 Grade - BWP) / HDHMR for the main worktop and visible panels, with 16 mm internal box work and supports, complete as per approved design.',
+  '{
+    "standard_dimensions": {
+      "width_cm": 127,
+      "depth_cm": 60
+    },
+    "dimensions_editable": true,
+    "material": "Marine Plywood (710 Grade - BWP) / HDHMR",
+    "main_worktop_and_visible_panels": "19 mm",
+    "internal_box_work_and_supports": "16 mm",
+    "rate": 1550.00,
+    "rate_unit": "sq.ft.",
+    "pricing_basis": "Front elevation area (width x height)",
+    "quotation_behavior": "Prefill the reference dimensions of 127 cm x 60 cm and allow dimensions to be edited in the quotation."
+  }'::jsonb,
+  1550.00,
+  'sq.ft.',
+  'Front elevation area (width x height)'
+from category
+on conflict (category_id, name) do nothing;
+
+
+-- Item 24: Standard Bookshelf
+-- Standard design; dimensions are not fixed and are entered in the quotation.
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Bedroom Units', 'bedroom-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Standard Bookshelf',
+  'Fabrication, supply and installation of standard design Bookshelf using 19 mm Marine Plywood (710 Grade - BWP) / HDHMR for visible shelves and panels, with 16 mm internal box work, complete as per approved design.',
+  '{
+    "design": "Standard design",
+    "dimensions": "To be entered and editable in the quotation",
+    "material": "Marine Plywood (710 Grade - BWP) / HDHMR",
+    "visible_shelves_and_panels": "19 mm",
+    "internal_box_work": "16 mm",
+    "rate": 1950.00,
+    "rate_unit": "sq.ft.",
+    "pricing_basis": "Front elevation area (width x height)",
+    "quotation_behavior": "Allow project-specific bookshelf dimensions to be entered and edited in the quotation."
+  }'::jsonb,
+  1950.00,
+  'sq.ft.',
+  'Front elevation area (width x height)'
+from category
+on conflict (category_id, name) do nothing;
