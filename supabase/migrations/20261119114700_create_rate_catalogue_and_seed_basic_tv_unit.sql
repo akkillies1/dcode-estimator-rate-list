@@ -354,7 +354,22 @@ select
   'Fabrication, supply and installation of Crockery Unit using 19 mm Marine Plywood (710 Grade BWP) / HDHMR, with pricing calculated on the front elevation area (width x height), complete as per approved design.',
   '{
     "material": "19 mm Marine Plywood (710 Grade BWP) / HDHMR",
-    "pricing_measurement": "Front elevation area (width x height)"
+    "pricing_measurement": "Front elevation area (width x height)",
+    "quotation_options": [
+      {
+        "name": "Crockery Base Unit",
+        "rate": 2150.00,
+        "rate_unit": "sq.ft.",
+        "pricing_basis": "Front elevation area (width x height)"
+      },
+      {
+        "name": "Crockery Loft Unit",
+        "rate": 1950.00,
+        "rate_unit": "sq.ft.",
+        "pricing_basis": "Front elevation area (width x height)"
+      }
+    ],
+    "quotation_selection": "Options can be selected independently; calculate and describe each selected unit separately."
   }'::jsonb,
   2150.00,
   'sq.ft.',
@@ -410,3 +425,55 @@ select
   'Front elevation area (width x height)'
 from category
 on conflict (category_id, name) do nothing;
+
+
+-- Item 15: Kitchen Overhead Unit
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Kitchen Units', 'kitchen-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Kitchen Overhead Unit',
+  'Fabrication, supply and installation of Kitchen Overhead Unit using 19 mm Marine Plywood (710 Grade BWP) / HDHMR, with pricing calculated on the front elevation area (width x height), complete as per approved design.',
+  '{
+    "material": "19 mm Marine Plywood (710 Grade BWP) / HDHMR",
+    "pricing_measurement": "Front elevation area (width x height)"
+  }'::jsonb,
+  1950.00,
+  'sq.ft.',
+  'Front elevation area (width x height)'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 16: Kitchen Loft Unit
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Kitchen Units', 'kitchen-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Kitchen Loft Unit',
+  'Fabrication, supply and installation of Kitchen Loft Unit using 19 mm Marine Plywood (710 Grade BWP) / HDHMR, with pricing calculated on the front elevation area (width x height), complete as per approved design.',
+  '{
+    "material": "19 mm Marine Plywood (710 Grade BWP) / HDHMR",
+    "pricing_measurement": "Front elevation area (width x height)"
+  }'::jsonb,
+  1550.00,
+  'sq.ft.',
+  'Front elevation area (width x height)'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 17 is not a separate catalogue product.
+-- Crockery Loft Unit is an independently selectable option within Item 12: Crockery Unit.
