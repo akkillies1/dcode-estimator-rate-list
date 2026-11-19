@@ -266,3 +266,147 @@ select
   'Measured area; approximate rate subject to material, design and site conditions'
 from category
 on conflict (category_id, name) do nothing;
+
+
+-- Item 08: Dining Wash
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Dining Units', 'dining-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Dining Wash',
+  'Fabrication, supply and installation of Dining Wash Unit using 710 Grade BWP Plywood or WPC, with pricing calculated on the front elevation area (width x height), complete as per approved design.',
+  '{
+    "material": "Plywood (710 Grade BWP) or WPC",
+    "pricing_measurement": "Front elevation area (width x height)"
+  }'::jsonb,
+  2150.00,
+  'sq.ft.',
+  'Front elevation area (width x height)'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 10: 4 Seater Dining Table
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Dining Tables', 'dining-tables')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  '4 Seater Dining Table',
+  'Supply of standard design 4 Seater Dining Table, complete as a finished piece.',
+  '{
+    "design": "Standard design"
+  }'::jsonb,
+  40000.00,
+  'piece',
+  'Per piece'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 11: Dining Chair
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Dining Chairs', 'dining-chairs')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Dining Chair',
+  'Supply of standard design Dining Chair, complete as a finished piece.',
+  '{
+    "design": "Standard design"
+  }'::jsonb,
+  12500.00,
+  'piece',
+  'Per piece'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 12: Crockery Unit
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Crockery Units', 'crockery-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Crockery Unit',
+  'Fabrication, supply and installation of Crockery Unit using 19 mm Marine Plywood (710 Grade BWP) / HDHMR, with pricing calculated on the front elevation area (width x height), complete as per approved design.',
+  '{
+    "material": "19 mm Marine Plywood (710 Grade BWP) / HDHMR",
+    "pricing_measurement": "Front elevation area (width x height)"
+  }'::jsonb,
+  2150.00,
+  'sq.ft.',
+  'Front elevation area (width x height)'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 13: Breakfast Counter Modesty Panel
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Kitchen Units', 'kitchen-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Breakfast Counter - Modesty Panel',
+  'Fabrication, supply and installation of Breakfast Counter Modesty Panel using 19 mm Marine Plywood (710 Grade BWP) / HDHMR, with pricing calculated on the front elevation area (width x height), complete as per approved design.',
+  '{
+    "material": "19 mm Marine Plywood (710 Grade BWP) / HDHMR",
+    "work_type": "Modesty panel",
+    "pricing_measurement": "Front elevation area (width x height)"
+  }'::jsonb,
+  1550.00,
+  'sq.ft.',
+  'Front elevation area (width x height)'
+from category
+on conflict (category_id, name) do nothing;
+
+-- Item 14: Kitchen Bottom Unit
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Kitchen Units', 'kitchen-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Kitchen Bottom Unit',
+  'Fabrication, supply and installation of Kitchen Bottom Unit using 19 mm Marine Plywood (710 Grade BWP) / HDHMR, with pricing calculated on the front elevation area (width x height), complete as per approved design.',
+  '{
+    "material": "19 mm Marine Plywood (710 Grade BWP) / HDHMR",
+    "pricing_measurement": "Front elevation area (width x height)"
+  }'::jsonb,
+  1950.00,
+  'sq.ft.',
+  'Front elevation area (width x height)'
+from category
+on conflict (category_id, name) do nothing;
