@@ -521,3 +521,57 @@ select
   'Per piece; headboard selection determines the applicable rate and generated description'
 from category
 on conflict (category_id, name) do nothing;
+
+
+-- Item 20: Wardrobe
+-- Standard dimensions are prefilled in the quotation; dimensions remain editable.
+-- If dimensions are changed, calculate the wardrobe price using the custom front-elevation rate.
+-- Loft is an optional add-on with its own dimensions and rate.
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Wardrobes', 'wardrobes')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Wardrobe',
+  'Fabrication, supply and installation of Wardrobe using laminated Marine Ply (710 Grade - BWP) with 16 mm and 9 mm laminated plywood box work and 19 mm square-edge shutters in Marine Ply (710 Grade BWP) / HDHMR, including Hettich hinges, standard handles and all necessary hardware and fittings.',
+  '{
+    "material": "Laminated Marine Ply (710 Grade - BWP)",
+    "box_work": "16 mm and 9 mm laminated plywood",
+    "shutters": "19 mm square-edge shutters in Marine Ply (710 Grade BWP) / HDHMR",
+    "hardware": ["Hettich hinges", "Standard handles", "All necessary hardware and fittings"],
+    "standard_dimensions": {
+      "width_cm": 124,
+      "height_cm": 210
+    },
+    "standard_rate": 56550.00,
+    "standard_rate_unit": "piece",
+    "custom_rate": 1950.00,
+    "custom_rate_unit": "sq.ft.",
+    "custom_pricing_basis": "Front elevation area (width x height)",
+    "quotation_behavior": "Prefill the standard dimensions (124 cm x 210 cm) and standard price. Allow dimensions to be edited in the quotation. If dimensions are changed, calculate the wardrobe price using the custom rate per sq.ft. of front elevation area.",
+    "optional_add_ons": [
+      {
+        "name": "Wardrobe Loft",
+        "default_dimensions_cm": {
+          "width": 124,
+          "height": 60
+        },
+        "rate": 1550.00,
+        "rate_unit": "sq.ft.",
+        "pricing_basis": "Front elevation area (width x height)",
+        "optional": true,
+        "quotation_behavior": "Allow the loft to be selected independently; when selected, allow its dimensions to be edited and calculate its price separately."
+      }
+    ]
+  }'::jsonb,
+  56550.00,
+  'piece',
+  'Standard wardrobe: 124 cm x 210 cm at ₹56,550 per piece; editable dimensions use ₹1,950 per sq.ft. of front elevation area. Optional loft: ₹1,550 per sq.ft. of front elevation area.'
+from category
+on conflict (category_id, name) do nothing;
