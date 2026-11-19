@@ -477,3 +477,47 @@ on conflict (category_id, name) do nothing;
 
 -- Item 17 is not a separate catalogue product.
 -- Crockery Loft Unit is an independently selectable option within Item 12: Crockery Unit.
+
+
+-- Item 18: Queen Size Cot
+-- Headboard is a selectable quotation option; the base catalogue rate is without headboard.
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Beds / Cots', 'beds-cots')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Queen Size Cot',
+  'Fabrication, supply and installation of Queen Size Cot (158 cm x 200 cm) using laminated Marine Plywood (710 Grade - BWP), with 16 mm and 9 mm laminated plywood box work.',
+  '{
+    "design": "Standard design",
+    "dimensions": "158 cm x 200 cm",
+    "material": "Laminated Marine Plywood (710 Grade - BWP)",
+    "box_work": "16 mm and 9 mm laminated plywood",
+    "pricing_measurement": "Per piece",
+    "quotation_options": [
+      {
+        "name": "Without Headboard",
+        "rate": 36750.00,
+        "rate_unit": "piece",
+        "description": "Fabrication, supply and installation of Queen Size Cot (158 cm x 200 cm) using laminated Marine Plywood (710 Grade - BWP), with 16 mm and 9 mm laminated plywood box work."
+      },
+      {
+        "name": "With Headboard Cushion",
+        "rate": 48000.00,
+        "rate_unit": "piece",
+        "description": "Fabrication, supply and installation of Queen Size Cot (158 cm x 200 cm) using laminated Marine Plywood (710 Grade - BWP), with 16 mm and 9 mm laminated plywood box work, including upholstered headboard with cushion."
+      }
+    ],
+    "quotation_selection": "Select either Without Headboard or With Headboard Cushion. Apply the selected option rate and generate its corresponding description."
+  }'::jsonb,
+  36750.00,
+  'piece',
+  'Per piece; headboard selection determines the applicable rate and generated description'
+from category
+on conflict (category_id, name) do nothing;
