@@ -575,3 +575,95 @@ select
   'Standard wardrobe: 124 cm x 210 cm at ₹56,550 per piece; editable dimensions use ₹1,950 per sq.ft. of front elevation area. Optional loft: ₹1,550 per sq.ft. of front elevation area.'
 from category
 on conflict (category_id, name) do nothing;
+
+-- Item 21: Dressing Unit
+-- Mirror is an optional, independently priced quotation add-on.
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Bedroom Units', 'bedroom-units')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'Dressing Unit',
+  'Fabrication, supply and installation of Dressing Unit using 16 mm Marine Plywood (710 Grade - BWP) / HDHMR, with pricing calculated on the front elevation area (width x height), complete as per approved design.',
+  '{
+    "material": "16 mm Marine Plywood (710 Grade - BWP) / HDHMR",
+    "standard_dimensions": {
+      "width_cm": 60,
+      "height_cm": 60
+    },
+    "rate": 1950.00,
+    "rate_unit": "sq.ft.",
+    "pricing_basis": "Front elevation area (width x height)",
+    "optional_add_ons": [
+      {
+        "name": "Mirror",
+        "default_dimensions_cm": {
+          "width": 60,
+          "height": 210
+        },
+        "rate": 950.00,
+        "rate_unit": "sq.ft.",
+        "pricing_basis": "Front elevation area (width x height)",
+        "optional": true,
+        "description": "Supply and installation of Mirror, with pricing calculated on the front elevation area (width x height), complete as per approved design.",
+        "quotation_behavior": "Allow the mirror to be selected independently; allow its dimensions to be edited and calculate its price separately."
+      }
+    ],
+    "quotation_behavior": "Prefill dressing unit dimensions as 60 cm x 60 cm; allow dimensions to be edited in the quotation. Mirror is optional and independently dimensioned and priced."
+  }'::jsonb,
+  1950.00,
+  'sq.ft.',
+  'Front elevation area (width x height); optional mirror separately at ₹950 per sq.ft.'
+from category
+on conflict (category_id, name) do nothing;
+
+
+-- Item 22: King Size Cot
+-- Standard dimensions and headboard options are quotation defaults; the without-headboard rate is intentionally unset.
+with category as (
+  insert into public.rate_catalogue_categories (name, slug)
+  values ('Beds / Cots', 'beds-cots')
+  on conflict (name) do update set name = excluded.name
+  returning id
+)
+insert into public.rate_catalogue_items (
+  category_id, name, description, specifications, rate, rate_unit, pricing_basis
+)
+select
+  category.id,
+  'King Size Cot',
+  'Fabrication, supply and installation of King Size Cot (180 cm x 200 cm) using laminated Marine Plywood (710 Grade - BWP), with 16 mm and 9 mm laminated plywood box work.',
+  '{
+    "design": "Standard design",
+    "dimensions": "180 cm x 200 cm",
+    "material": "Laminated Marine Plywood (710 Grade - BWP)",
+    "box_work": "16 mm and 9 mm laminated plywood",
+    "pricing_measurement": "Per piece",
+    "quotation_options": [
+      {
+        "name": "Without Headboard",
+        "rate": null,
+        "rate_unit": "piece",
+        "description": "Fabrication, supply and installation of King Size Cot (180 cm x 200 cm) using laminated Marine Plywood (710 Grade - BWP), with 16 mm and 9 mm laminated plywood box work."
+      },
+      {
+        "name": "With Upholstered Cushion Headboard",
+        "rate": 50500.00,
+        "rate_unit": "piece",
+        "description": "Fabrication, supply and installation of King Size Cot (180 cm x 200 cm) using laminated Marine Plywood (710 Grade - BWP), with 16 mm and 9 mm laminated plywood box work, including upholstered headboard with cushion."
+      }
+    ],
+    "quotation_selection": "Select either Without Headboard or With Upholstered Cushion Headboard. Apply the selected option rate and generate its corresponding description. Keep the Without Headboard rate unset until supplied.",
+    "standard_dimensions_editable": true
+  }'::jsonb,
+  null,
+  'piece',
+  'Per piece; selectable headboard option determines applicable rate and generated description'
+from category
+on conflict (category_id, name) do nothing;
