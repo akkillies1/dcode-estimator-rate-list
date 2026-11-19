@@ -79,3 +79,33 @@ select
   'Front face elevation area (width x height)'
 from category
 on conflict (category_id, name) do nothing;
+
+-- Item 02: TV Unit Ledge
+-- Priced by running length; no project-specific dimensions or quantities are stored.
+with category as (
+  select id
+  from public.rate_catalogue_categories
+  where slug = 'tv-units'
+)
+insert into public.rate_catalogue_items (
+  category_id,
+  name,
+  description,
+  specifications,
+  rate,
+  rate_unit,
+  pricing_basis
+)
+select
+  category.id,
+  'TV Unit Ledge',
+  'Fabrication, supply and installation of TV Unit Ledge using 4 cm thick Marine Plywood, complete as per approved design.',
+  '{
+    "material": "Marine Plywood only",
+    "thickness": "4 cm"
+  }'::jsonb,
+  1050.00,
+  'running foot',
+  'Length of ledge'
+from category
+on conflict (category_id, name) do nothing;
